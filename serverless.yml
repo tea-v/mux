@@ -1,0 +1,34 @@
+service: mux
+
+custom:
+  webpack:
+    includeModules:
+      forceExclude:
+        - aws-sdk
+
+functions:
+  authorizeUser:
+    handler: functions/authorizeUser.handler
+    memorySize: 128
+    role: EdgeLambdaRole
+    timeout: 5
+
+package:
+  individually: true
+
+plugins:
+  localPath: ./plugins
+  modules:
+    - serverless-update-function-versions
+    - serverless-webpack
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs8.10
+  stage: prod
+
+resources:
+  - ${file(resources/aws/cloudfront.yml)}
+  - ${file(resources/aws/iam.yml)}
+  - ${file(resources/aws/s3.yml)}
