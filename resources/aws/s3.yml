@@ -6,11 +6,11 @@ Resources:
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
-              - '*'
+              - "*"
             AllowedMethods:
               - GET
             AllowedOrigins:
-              - '*'
+              - "*"
             MaxAge: 3600
 
   MoviesBucketOriginAccessIdentity:
@@ -36,7 +36,7 @@ Resources:
                   [MoviesBucketOriginAccessIdentity, S3CanonicalUserId]
             Resource:
               Fn::Join:
-                - ''
-                - - 'arn:aws:s3:::'
+                - ""
+                - - "arn:aws:s3:::"
                   - Ref: MoviesBucket
                   - /*

@@ -15,7 +15,7 @@ Resources:
               - Access-Control-Request-Headers
               - Access-Control-Request-Method
               - Origin
-            QueryString: 'false'
+            QueryString: false
           LambdaFunctionAssociations:
             - EventType: viewer-request
               LambdaFunctionARN: AuthorizeUserLambdaFunction
@@ -26,7 +26,7 @@ Resources:
         Origins:
           - DomainName:
               Fn::Join:
-                - ''
+                - ""
                 - - Ref: MoviesBucket
                   - .s3.
                   - ${self:provider.region}
@@ -36,7 +36,7 @@ Resources:
             S3OriginConfig:
               OriginAccessIdentity:
                 Fn::Join:
-                  - ''
+                  - ""
                   - - origin-access-identity/cloudfront/
                     - Ref: MoviesBucketOriginAccessIdentity
         PriceClass: PriceClass_100
