@@ -1,42 +1,36 @@
 /* eslint-disable @typescript-eslint/no-var-requires, import/no-extraneous-dependencies */
 
-const findKey = require('lodash/findKey');
-const flatMap = require('lodash/flatMap');
-const get = require('lodash/get');
-const pickBy = require('lodash/pickBy');
-
 function getAssociations(resources) {
-  const distributions = pickBy(resources, {
-    Type: 'AWS::CloudFront::Distribution',
-  });
-  return flatMap(distributions, (distribution) => {
-    const associations = get(
-      distribution,
-      'Properties.DistributionConfig.DefaultCacheBehavior.LambdaFunctionAssociations',
-      []
-    );
-    const cacheBehaviors = get(
-      distribution,
-      'Properties.DistributionConfig.CacheBehaviors',
-      []
-    );
-    return associations.concat(
-      flatMap(cacheBehaviors, (cacheBehavior) =>
-        get(cacheBehavior, 'LambdaFunctionAssociations', [])
-      )
-    );
-  });
+  const distributions = Object.values(resources).filter(
+    ({ Type }) => Type === 'AWS::CloudFront::Distribution'
+  );
+  return distributions.map(
+    ({
+      Properties: {
+        DistributionConfig: { CacheBehaviors = [], DefaultCacheBehavior },
+      },
+    }) => {
+      const associations = CacheBehaviors.reduce(
+        (acc, { LambdaFunctionAssociations }) => {
+          acc.push(LambdaFunctionAssociations);
+          return acc;
+        },
+        []
+      );
+      const defaultAssociations =
+        DefaultCacheBehavior.LambdaFunctionAssociations || [];
+      return defaultAssociations.concat(associations);
+    }
+  );
 }
 
-function getVersionedARN(resources, arn) {
-  const key = findKey(resources, {
-    Properties: {
-      FunctionName: {
-        Ref: arn,
-      },
-    },
-    Type: 'AWS::Lambda::Version',
-  });
+function getVersionedARN(compiledResourceEntries, arn) {
+  const [key] =
+    compiledResourceEntries.find(
+      ([, compiledResource]) =>
+        compiledResource.Properties.FunctionName.Ref === arn &&
+        compiledResource.Type === 'AWS::Lambda::Version'
+    ) || [];
   return (
     key && {
       'Fn::Join': [
@@ -61,17 +55,22 @@ class UpdateFunctionVersions {
 
   updateFunctionVersions() {
     const {
-      provider,
+      provider: {
+        compiledCloudFormationTemplate: { Resources: compiledResources },
+      },
       resources: { Resources: resources },
     } = this.serverless.service;
     const associations = getAssociations(resources);
-    const compiledResources = provider.compiledCloudFormationTemplate.Resources;
     associations.forEach((association) => {
-      const arn = association.LambdaFunctionARN;
-      const versionedARN = getVersionedARN(compiledResources, arn);
-      if (arn && versionedARN) {
-        // eslint-disable-next-line no-param-reassign
-        association.LambdaFunctionARN = versionedARN;
+      const { LambdaFunctionARN: arn } = association;
+      if (arn) {
+        const versionedARN = getVersionedARN(
+          Object.entries(compiledResources),
+          arn
+        );
+        if (versionedARN) {
+          Object.assign(association, { LambdaFunctionARN: versionedARN });
+        }
       }
     });
   }
