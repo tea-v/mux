@@ -28,48 +28,50 @@ function getAssociations(resources) {
   });
 }
 
-function getVersion(resources, arn) {
+function getVersionedARN(resources, arn) {
   const key = findKey(resources, {
-    Type: 'AWS::Lambda::Version',
     Properties: {
       FunctionName: {
         Ref: arn,
       },
     },
+    Type: 'AWS::Lambda::Version',
   });
-  return key
-    ? {
-        'Fn::Join': [
-          '',
-          [
-            { 'Fn::GetAtt': [arn, 'Arn'] },
-            ':',
-            { 'Fn::GetAtt': [key, 'Version'] },
-          ],
+  return (
+    key && {
+      'Fn::Join': [
+        '',
+        [
+          { 'Fn::GetAtt': [arn, 'Arn'] },
+          ':',
+          { 'Fn::GetAtt': [key, 'Version'] },
         ],
-      }
-    : undefined;
+      ],
+    }
+  );
 }
 
 class UpdateFunctionVersions {
   constructor(serverless) {
     this.hooks = {
-      'before:package:finalize': this.updateFunctionVersion.bind(this),
+      'before:package:finalize': this.updateFunctionVersions.bind(this),
     };
     this.serverless = serverless;
   }
 
-  updateFunctionVersion() {
-    const compiledResources = this.serverless.service.provider
-      .compiledCloudFormationTemplate.Resources;
-    const resources = this.serverless.service.resources.Resources;
+  updateFunctionVersions() {
+    const {
+      provider,
+      resources: { Resources: resources },
+    } = this.serverless.service;
     const associations = getAssociations(resources);
+    const compiledResources = provider.compiledCloudFormationTemplate.Resources;
     associations.forEach((association) => {
       const arn = association.LambdaFunctionARN;
-      const version = getVersion(compiledResources, arn);
-      if (arn && version) {
+      const versionedARN = getVersionedARN(compiledResources, arn);
+      if (arn && versionedARN) {
         // eslint-disable-next-line no-param-reassign
-        association.LambdaFunctionARN = version;
+        association.LambdaFunctionARN = versionedARN;
       }
     });
   }
