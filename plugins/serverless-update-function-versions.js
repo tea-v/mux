@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires, import/no-extraneous-dependencies */
-
 function getAssociations(resources) {
   const distributions = Object.values(resources).filter(
     ({ Type }) => Type === 'AWS::CloudFront::Distribution'
