@@ -11,10 +11,8 @@ function getAssociations(resources) {
       },
     }) => {
       const associations = CacheBehaviors.reduce(
-        (acc, { LambdaFunctionAssociations }) => {
-          acc.push(LambdaFunctionAssociations);
-          return acc;
-        },
+        (acc, { LambdaFunctionAssociations }) =>
+          acc.concat(LambdaFunctionAssociations),
         []
       );
       const defaultAssociations =
