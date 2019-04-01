@@ -35,13 +35,16 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
+      MOVIES_BUCKET_NAME: JSON.stringify(process.env.MOVIES_BUCKET_NAME),
       USER_POOL_PUBLIC_KEYS: process.env.USER_POOL_PUBLIC_KEYS,
       USER_POOL_URL: JSON.stringify(process.env.USER_POOL_URL),
     }),
   ],
   resolve: {
     alias: {
+      ':clients': path.resolve(__dirname, './clients'),
       ':functions': path.resolve(__dirname, './functions'),
+      ':types': path.resolve(__dirname, './types'),
     },
     extensions: ['.js', '.ts'],
   },
