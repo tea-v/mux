@@ -30,8 +30,8 @@ export const handler: CloudFrontRequestHandler = async (event) => {
   const [, prefix, imageName, extension] = requestPathComponents;
   const [width, height] = (dimensions as string).split('x');
   const [normalizedWidth, normalizedHeight] = getNormalizedDimensions(
-    +width || 1,
-    +height || 1
+    Math.abs(+width || 1),
+    Math.abs(+height || 1)
   );
   const forwardedPathComponents = [
     prefix,
