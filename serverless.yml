@@ -13,6 +13,17 @@ functions:
     role: EdgeLambdaRole
     timeout: 5
 
+  forwardImageRequest:
+    handler: functions/forwardImageRequest.handler
+    memorySize: 128
+    role: EdgeLambdaRole
+    timeout: 5
+
+  resizeImage:
+    handler: functions/resizeImage.handler
+    role: ResizeImageRole
+    timeout: 5
+
 package:
   individually: true
 

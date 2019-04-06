@@ -3,6 +3,65 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        CacheBehaviors:
+          - AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            Compress: true
+            ForwardedValues:
+              Cookies:
+                Forward: none
+              Headers:
+                - Access-Control-Request-Headers
+                - Access-Control-Request-Method
+                - Origin
+              QueryString: true
+              QueryStringCacheKeys:
+                - d
+                - f
+            LambdaFunctionAssociations:
+              - EventType: viewer-request
+                LambdaFunctionARN: AuthorizeUserLambdaFunction
+              - EventType: viewer-request
+                LambdaFunctionARN: ForwardImageRequestFunction
+              - EventType: origin-response
+                LambdaFunctionARN: ResizeImageFunction
+            MinTTL: 100
+            PathPattern: '*.jpg'
+            SmoothStreaming: false
+            TargetOriginId:
+              Ref: MoviesBucket
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            Compress: true
+            ForwardedValues:
+              Cookies:
+                Forward: none
+              Headers:
+                - Access-Control-Request-Headers
+                - Access-Control-Request-Method
+                - Origin
+              QueryString: true
+              QueryStringCacheKeys:
+                - d
+                - f
+            LambdaFunctionAssociations:
+              - EventType: viewer-request
+                LambdaFunctionARN: AuthorizeUserLambdaFunction
+              - EventType: viewer-request
+                LambdaFunctionARN: ForwardImageRequestFunction
+              - EventType: origin-response
+                LambdaFunctionARN: ResizeImageFunction
+            MinTTL: 100
+            PathPattern: '*.png'
+            SmoothStreaming: false
+            TargetOriginId:
+              Ref: MoviesBucket
+            ViewerProtocolPolicy: redirect-to-https
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
@@ -26,7 +85,7 @@ Resources:
         Origins:
           - DomainName:
               Fn::Join:
-                - ""
+                - ''
                 - - Ref: MoviesBucket
                   - .s3.
                   - ${self:provider.region}
@@ -36,7 +95,7 @@ Resources:
             S3OriginConfig:
               OriginAccessIdentity:
                 Fn::Join:
-                  - ""
+                  - ''
                   - - origin-access-identity/cloudfront/
                     - Ref: MoviesBucketOriginAccessIdentity
         PriceClass: PriceClass_100

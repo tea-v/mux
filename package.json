@@ -3,19 +3,19 @@
   "private": true,
   "version": "1.0.0",
   "dependencies": {
-    "aws-sdk": "^2.432.0",
+    "aws-sdk": "^2.437.0",
     "jsonwebtoken": "^8.5.1",
     "jwk-to-pem": "^2.0.1",
     "sharp": "^0.22.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.0",
+    "@babel/core": "^7.4.3",
     "@babel/preset-typescript": "^7.3.3",
     "@types/aws-lambda": "^8.10.23",
     "@types/jsonwebtoken": "^8.3.2",
     "@types/sharp": "^0.22.1",
-    "@typescript-eslint/eslint-plugin": "^1.5.0",
-    "@typescript-eslint/parser": "^1.5.0",
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
     "babel-loader": "^8.0.5",
     "babel-preset-env": "^1.7.0",
     "dotenv": "^7.0.0",
@@ -27,7 +27,7 @@
     "imports-loader": "^0.8.0",
     "prettier": "^1.16.4",
     "serverless-webpack": "^5.2.0",
-    "typescript": "^3.4.1",
+    "typescript": "^3.4.2",
     "webpack": "^4.29.6",
     "webpack-node-externals": "^1.7.2"
   },

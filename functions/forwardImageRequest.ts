@@ -19,7 +19,7 @@ function getNormalizedDimensions(width: number, height: number) {
 
 export const handler: CloudFrontRequestHandler = async (event) => {
   const { request } = event.Records[0].cf;
-  const { d: dimensions } = querystring.parse(request.querystring);
+  const { d: dimensions, f: format } = querystring.parse(request.querystring);
   if (!dimensions) {
     return request;
   }
@@ -36,7 +36,7 @@ export const handler: CloudFrontRequestHandler = async (event) => {
   const forwardedPathComponents = [
     prefix,
     `${normalizedWidth}x${normalizedHeight}`,
-    extension,
+    format || extension,
     `${imageName}.${extension}`,
   ];
   request.uri = forwardedPathComponents.join('/');
