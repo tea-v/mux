@@ -41,7 +41,7 @@ export const handler: CloudFrontRequestHandler = async (event) => {
   ) {
     return unauthorizedResponse;
   }
-  const certificate = (await getCertificates())[decodedJWT.header.kid];
+  const certificate = getCertificates()[decodedJWT.header.kid];
   if (!certificate) {
     return unauthorizedResponse;
   }
