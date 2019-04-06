@@ -5,6 +5,17 @@ import jwkToPem from 'jwk-to-pem';
 import jwt from 'jsonwebtoken';
 import { CloudFrontRequestHandler } from 'aws-lambda';
 
+function getCertificates() {
+  return USER_POOL_PUBLIC_KEYS.reduce<{ [key: string]: string }>(
+    (acc, publicKey) => {
+      const { e, kid, kty, n } = publicKey;
+      acc[kid] = jwkToPem({ e, kty, n });
+      return acc;
+    },
+    {}
+  );
+}
+
 function verifyToken(token: string, certificate: string) {
   return new Promise((resolve) => {
     jwt.verify(token, certificate, { issuer: USER_POOL_URL }, (err) =>
@@ -12,13 +23,6 @@ function verifyToken(token: string, certificate: string) {
     );
   });
 }
-
-const getCertificates = () =>
-  USER_POOL_PUBLIC_KEYS.reduce<{ [key: string]: string }>((acc, publicKey) => {
-    const { e, kid, kty, n } = publicKey;
-    acc[kid] = jwkToPem({ e, kty, n });
-    return acc;
-  }, {});
 
 const unauthorizedResponse = {
   status: '401',
