@@ -4,7 +4,6 @@ import querystring from 'querystring';
 import {
   CloudFrontRequest,
   CloudFrontRequestHandler,
-  CloudFrontRequestResult,
   CloudFrontResultResponse,
 } from 'aws-lambda';
 
@@ -25,38 +24,35 @@ function getNormalizedDimensions(width: number, height: number) {
 }
 
 function isAuthorized(
-  request: CloudFrontRequestResult
+  request: CloudFrontRequest | CloudFrontResultResponse
 ): request is CloudFrontRequest {
-  return !!request && (request as CloudFrontResultResponse).status !== '401';
+  return (request as CloudFrontResultResponse).status !== '401';
 }
 
 export const handler: CloudFrontRequestHandler = async (...args) => {
-  const request = (await authorizeUser(...args)) as
-    | CloudFrontRequest
-    | CloudFrontResultResponse;
-  if (!isAuthorized(request)) {
-    return request;
+  const request = await authorizeUser(...args);
+  if (request && isAuthorized(request)) {
+    const { d: dimensions, f: format } = querystring.parse(request.querystring);
+    if (!dimensions) {
+      return request;
+    }
+    const requestPathComponents = request.uri.match(/(.*)\/(.*)\.(.*)/);
+    if (!requestPathComponents) {
+      throw new Error(`Failed to parse ${request.uri}`);
+    }
+    const [, prefix, imageName, extension] = requestPathComponents;
+    const [width, height] = (dimensions as string).split('x');
+    const [normalizedWidth, normalizedHeight] = getNormalizedDimensions(
+      Math.abs(+width || 1),
+      Math.abs(+height || 1)
+    );
+    const forwardedPathComponents = [
+      prefix,
+      `${normalizedWidth}x${normalizedHeight}`,
+      format || extension,
+      `${imageName}.${extension}`,
+    ];
+    request.uri = forwardedPathComponents.join('/');
   }
-  const { d: dimensions, f: format } = querystring.parse(request.querystring);
-  if (!dimensions) {
-    return request;
-  }
-  const requestPathComponents = request.uri.match(/(.*)\/(.*)\.(.*)/);
-  if (!requestPathComponents) {
-    throw new Error(`Failed to parse ${request.uri}`);
-  }
-  const [, prefix, imageName, extension] = requestPathComponents;
-  const [width, height] = (dimensions as string).split('x');
-  const [normalizedWidth, normalizedHeight] = getNormalizedDimensions(
-    Math.abs(+width || 1),
-    Math.abs(+height || 1)
-  );
-  const forwardedPathComponents = [
-    prefix,
-    `${normalizedWidth}x${normalizedHeight}`,
-    format || extension,
-    `${imageName}.${extension}`,
-  ];
-  request.uri = forwardedPathComponents.join('/');
-  return request;
+  return request || null;
 };
