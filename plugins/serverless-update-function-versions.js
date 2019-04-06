@@ -2,21 +2,26 @@ function getAssociations(resources) {
   const distributions = Object.values(resources).filter(
     ({ Type }) => Type === 'AWS::CloudFront::Distribution'
   );
-  return distributions.map(
-    ({
-      Properties: {
-        DistributionConfig: { CacheBehaviors = [], DefaultCacheBehavior },
-      },
-    }) => {
+  return distributions.reduce(
+    (
+      acc,
+      {
+        Properties: {
+          DistributionConfig: { CacheBehaviors = [], DefaultCacheBehavior },
+        },
+      }
+    ) => {
       const associations = CacheBehaviors.reduce(
-        (acc, { LambdaFunctionAssociations }) =>
-          acc.concat(LambdaFunctionAssociations),
+        (cacheBehaviors, { LambdaFunctionAssociations }) =>
+          cacheBehaviors.concat(LambdaFunctionAssociations),
         []
       );
       const defaultAssociations =
         DefaultCacheBehavior.LambdaFunctionAssociations || [];
-      return defaultAssociations.concat(associations);
-    }
+      acc.push(...defaultAssociations, ...associations);
+      return acc;
+    },
+    []
   );
 }
 
