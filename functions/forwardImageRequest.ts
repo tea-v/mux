@@ -1,13 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 
 import querystring from 'querystring';
-import {
-  CloudFrontRequest,
-  CloudFrontRequestHandler,
-  CloudFrontResultResponse,
-} from 'aws-lambda';
-
-import { handler as authorizeUser } from './authorizeUser';
+import { CloudFrontRequestHandler } from 'aws-lambda';
 
 const MAX_WIDTH = 2160;
 const MIN_WIDTH = 100;
@@ -23,17 +17,8 @@ function getNormalizedDimensions(width: number, height: number) {
   return [normalizedWidth, normalizedHeight];
 }
 
-function isAuthorized(
-  request: CloudFrontRequest | CloudFrontResultResponse
-): request is CloudFrontRequest {
-  return (request as CloudFrontResultResponse).status !== '401';
-}
-
-export const handler: CloudFrontRequestHandler = async (...args) => {
-  const request = await authorizeUser(...args);
-  if (!request || !isAuthorized(request)) {
-    return request || null;
-  }
+export const handler: CloudFrontRequestHandler = async (event) => {
+  const { request } = event.Records[0].cf;
   const { d: dimensions, f: format } = querystring.parse(request.querystring);
   if (!dimensions) {
     return request;
