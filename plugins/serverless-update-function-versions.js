@@ -28,9 +28,13 @@ function getAssociations(resources) {
 function getVersionedARN(compiledResourceEntries, arn) {
   const [key] =
     compiledResourceEntries.find(
-      ([, compiledResource]) =>
-        compiledResource.Properties.FunctionName.Ref === arn &&
-        compiledResource.Type === 'AWS::Lambda::Version'
+      ([
+        ,
+        {
+          Properties: { FunctionName: { Ref } = {} },
+          Type,
+        },
+      ]) => Ref === arn && Type === 'AWS::Lambda::Version'
     ) || [];
   return (
     key && {
