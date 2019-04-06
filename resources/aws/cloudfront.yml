@@ -22,8 +22,6 @@ Resources:
                 - f
             LambdaFunctionAssociations:
               - EventType: viewer-request
-                LambdaFunctionARN: AuthorizeUserLambdaFunction
-              - EventType: viewer-request
                 LambdaFunctionARN: ForwardImageRequestFunction
               - EventType: origin-response
                 LambdaFunctionARN: ResizeImageFunction
@@ -50,8 +48,6 @@ Resources:
                 - d
                 - f
             LambdaFunctionAssociations:
-              - EventType: viewer-request
-                LambdaFunctionARN: AuthorizeUserLambdaFunction
               - EventType: viewer-request
                 LambdaFunctionARN: ForwardImageRequestFunction
               - EventType: origin-response
