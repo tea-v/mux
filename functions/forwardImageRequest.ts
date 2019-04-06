@@ -31,28 +31,29 @@ function isAuthorized(
 
 export const handler: CloudFrontRequestHandler = async (...args) => {
   const request = await authorizeUser(...args);
-  if (request && isAuthorized(request)) {
-    const { d: dimensions, f: format } = querystring.parse(request.querystring);
-    if (!dimensions) {
-      return request;
-    }
-    const requestPathComponents = request.uri.match(/(.*)\/(.*)\.(.*)/);
-    if (!requestPathComponents) {
-      throw new Error(`Failed to parse ${request.uri}`);
-    }
-    const [, prefix, imageName, extension] = requestPathComponents;
-    const [width, height] = (dimensions as string).split('x');
-    const [normalizedWidth, normalizedHeight] = getNormalizedDimensions(
-      Math.abs(+width || 1),
-      Math.abs(+height || 1)
-    );
-    const forwardedPathComponents = [
-      prefix,
-      `${normalizedWidth}x${normalizedHeight}`,
-      format || extension,
-      `${imageName}.${extension}`,
-    ];
-    request.uri = forwardedPathComponents.join('/');
+  if (!request || !isAuthorized(request)) {
+    return request || null;
   }
-  return request || null;
+  const { d: dimensions, f: format } = querystring.parse(request.querystring);
+  if (!dimensions) {
+    return request;
+  }
+  const requestPathComponents = request.uri.match(/(.*)\/(.*)\.(.*)/);
+  if (!requestPathComponents) {
+    throw new Error(`Failed to parse ${request.uri}`);
+  }
+  const [, prefix, imageName, extension] = requestPathComponents;
+  const [width, height] = (dimensions as string).split('x');
+  const [normalizedWidth, normalizedHeight] = getNormalizedDimensions(
+    Math.abs(+width || 1),
+    Math.abs(+height || 1)
+  );
+  const forwardedPathComponents = [
+    prefix,
+    `${normalizedWidth}x${normalizedHeight}`,
+    format || extension,
+    `${imageName}.${extension}`,
+  ];
+  request.uri = forwardedPathComponents.join('/');
+  return request;
 };
