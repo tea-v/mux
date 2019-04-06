@@ -3,7 +3,15 @@
 
 import jwkToPem from 'jwk-to-pem';
 import jwt from 'jsonwebtoken';
-import { CloudFrontResponseHandler } from 'aws-lambda';
+import { CloudFrontRequestHandler } from 'aws-lambda';
+
+function verifyToken(token: string, certificate: string) {
+  return new Promise((resolve) => {
+    jwt.verify(token, certificate, { issuer: USER_POOL_URL }, (err) =>
+      resolve(err)
+    );
+  });
+}
 
 const getCertificates = () =>
   USER_POOL_PUBLIC_KEYS.reduce<{ [key: string]: string }>((acc, publicKey) => {
@@ -17,7 +25,7 @@ const unauthorizedResponse = {
   statusDescription: 'Unauthorized',
 };
 
-export const handler: CloudFrontResponseHandler = async (event) => {
+export const handler: CloudFrontRequestHandler = async (event) => {
   const { request } = event.Records[0].cf;
   const { headers } = request;
   if (!headers.authorization) {
@@ -37,12 +45,10 @@ export const handler: CloudFrontResponseHandler = async (event) => {
   if (!certificate) {
     return unauthorizedResponse;
   }
-  jwt.verify(token, certificate, { issuer: USER_POOL_URL }, (err) => {
-    if (err) {
-      return unauthorizedResponse;
-    }
-    delete headers.authorization;
-    return request;
-  });
-  return unauthorizedResponse;
+  const err = await verifyToken(token, certificate);
+  if (err) {
+    return unauthorizedResponse;
+  }
+  delete headers.authorization;
+  return request;
 };
