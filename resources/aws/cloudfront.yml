@@ -22,9 +22,9 @@ Resources:
                 - f
             LambdaFunctionAssociations:
               - EventType: viewer-request
-                LambdaFunctionARN: ForwardImageRequestFunction
+                LambdaFunctionARN: ForwardImageRequestLambdaFunction
               - EventType: origin-response
-                LambdaFunctionARN: ResizeImageFunction
+                LambdaFunctionARN: ResizeImageLambdaFunction
             MinTTL: 100
             PathPattern: '*.jpg'
             SmoothStreaming: false
@@ -49,9 +49,9 @@ Resources:
                 - f
             LambdaFunctionAssociations:
               - EventType: viewer-request
-                LambdaFunctionARN: ForwardImageRequestFunction
+                LambdaFunctionARN: ForwardImageRequestLambdaFunction
               - EventType: origin-response
-                LambdaFunctionARN: ResizeImageFunction
+                LambdaFunctionARN: ResizeImageLambdaFunction
             MinTTL: 100
             PathPattern: '*.png'
             SmoothStreaming: false
