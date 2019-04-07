@@ -1,10 +1,15 @@
 /* eslint-disable import/prefer-default-export */
 
 import querystring from 'querystring';
-import { CloudFrontRequestHandler } from 'aws-lambda';
+import { CloudFrontHeaders, CloudFrontRequestHandler } from 'aws-lambda';
 
 const MAX_WIDTH = 2160;
 const MIN_WIDTH = 100;
+
+function getFormat(headers: CloudFrontHeaders) {
+  const acceptValues = headers.accept.map(({ value }) => value).join();
+  return acceptValues.includes('image/webp') ? 'webp' : 'jpeg';
+}
 
 function getNormalizedDimensions(width: number, height: number) {
   const aspectRatio = width / height;
@@ -19,7 +24,7 @@ function getNormalizedDimensions(width: number, height: number) {
 
 export const handler: CloudFrontRequestHandler = async (event) => {
   const { request } = event.Records[0].cf;
-  const { d: dimensions, f: format } = querystring.parse(request.querystring);
+  const { d: dimensions } = querystring.parse(request.querystring);
   if (!dimensions) {
     return request;
   }
@@ -36,7 +41,7 @@ export const handler: CloudFrontRequestHandler = async (event) => {
   const forwardedPathComponents = [
     prefix,
     `${normalizedWidth}x${normalizedHeight}`,
-    format || extension,
+    getFormat(request.headers),
     `${imageName}.${extension}`,
   ];
   request.uri = forwardedPathComponents.join('/');

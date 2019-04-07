@@ -13,13 +13,13 @@ Resources:
               Cookies:
                 Forward: none
               Headers:
+                - Accept
                 - Access-Control-Request-Headers
                 - Access-Control-Request-Method
                 - Origin
               QueryString: true
               QueryStringCacheKeys:
                 - d
-                - f
             LambdaFunctionAssociations:
               - EventType: viewer-request
                 LambdaFunctionARN: ForwardImageRequestLambdaFunction
@@ -40,13 +40,13 @@ Resources:
               Cookies:
                 Forward: none
               Headers:
+                - Accept
                 - Access-Control-Request-Headers
                 - Access-Control-Request-Method
                 - Origin
               QueryString: true
               QueryStringCacheKeys:
                 - d
-                - f
             LambdaFunctionAssociations:
               - EventType: viewer-request
                 LambdaFunctionARN: ForwardImageRequestLambdaFunction

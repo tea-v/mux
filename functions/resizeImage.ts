@@ -17,8 +17,7 @@ export const handler: CloudFrontResponseHandler = async (event) => {
     throw new Error(`Failed to parse ${request.uri}`);
   }
   const [, prefix, width, height, format, imageName] = pathComponents;
-  const normalizedFormat = format === 'jpg' ? 'jpeg' : format;
-  const contentType = `image/${normalizedFormat}`;
+  const contentType = `image/${format}`;
   const contentTypeHeader = { key: 'Content-Type', value: contentType };
   const normalizedHeight = +height;
   const normalizedKey = `${prefix}/${imageName}`;
@@ -34,7 +33,7 @@ export const handler: CloudFrontResponseHandler = async (event) => {
   }
   const resizedImage = await sharp(sourceImage as Buffer)
     .resize(normalizedWidth, normalizedHeight)
-    .toFormat(normalizedFormat)
+    .toFormat(format)
     .toBuffer();
   S3.putObject({
     Body: resizedImage,
