@@ -27,7 +27,6 @@ Resources:
                 LambdaFunctionARN: ResizeImageLambdaFunction
             MinTTL: 100
             PathPattern: '*.jpg'
-            SmoothStreaming: false
             TargetOriginId:
               Ref: MoviesBucket
             ViewerProtocolPolicy: redirect-to-https
@@ -54,7 +53,6 @@ Resources:
                 LambdaFunctionARN: ResizeImageLambdaFunction
             MinTTL: 100
             PathPattern: '*.png'
-            SmoothStreaming: false
             TargetOriginId:
               Ref: MoviesBucket
             ViewerProtocolPolicy: redirect-to-https
