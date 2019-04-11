@@ -36,6 +36,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       MOVIES_BUCKET_NAME: JSON.stringify(process.env.MOVIES_BUCKET_NAME),
+      OMDB_API_KEY: JSON.stringify(process.env.OMDB_API_KEY),
       USER_POOL_PUBLIC_KEYS: process.env.USER_POOL_PUBLIC_KEYS,
       USER_POOL_URL: JSON.stringify(process.env.USER_POOL_URL),
     }),

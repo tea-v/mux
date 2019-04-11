@@ -19,6 +19,24 @@ functions:
     role: EdgeLambdaRole
     timeout: 5
 
+  indexMovie:
+    environment:
+      CLOUDFRONT_URL:
+        Fn::GetAtt: [MoviesDistribution, DomainName]
+    handler: functions/indexMovie.handler
+    iamRoleStatements:
+      - Action:
+          - s3:PutObject
+        Effect: Allow
+        Resource:
+          Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: MoviesBucket
+              - /*
+    memorySize: 128
+    timeout: 60
+
   resizeImage:
     handler: functions/resizeImage.handler
     role: ResizeImageRole
@@ -30,6 +48,7 @@ package:
 plugins:
   localPath: ./plugins
   modules:
+    - serverless-iam-roles-per-function
     - serverless-update-function-versions
     - serverless-webpack
 

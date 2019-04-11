@@ -81,9 +81,7 @@ Resources:
               Fn::Join:
                 - ''
                 - - Ref: MoviesBucket
-                  - .s3.
-                  - ${self:provider.region}
-                  - .amazonaws.com
+                  - .s3.${self:provider.region}.amazonaws.com
             Id:
               Ref: MoviesBucket
             S3OriginConfig:
