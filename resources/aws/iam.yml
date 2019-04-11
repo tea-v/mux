@@ -1,5 +1,5 @@
 Resources:
-  EdgeLambdaRole: &EdgeLambdaRole
+  IamRoleEdgeLambdaExecution: &IamRoleEdgeLambdaExecution
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -12,5 +12,5 @@ Resources:
                 - edgelambda.amazonaws.com
                 - lambda.amazonaws.com
 
-  ResizeImageRole:
-    <<: *EdgeLambdaRole
+  ResizeImageIamRoleEdgeLambdaExecution:
+    <<: *IamRoleEdgeLambdaExecution

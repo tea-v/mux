@@ -10,19 +10,19 @@ functions:
   authorizeUser:
     handler: functions/authorizeUser.handler
     memorySize: 128
-    role: EdgeLambdaRole
+    role: IamRoleEdgeLambdaExecution
     timeout: 5
 
   forwardImageRequest:
     handler: functions/forwardImageRequest.handler
     memorySize: 128
-    role: EdgeLambdaRole
+    role: IamRoleEdgeLambdaExecution
     timeout: 5
 
   indexMovie:
     environment:
       CLOUDFRONT_URL:
-        Fn::GetAtt: [MoviesDistribution, DomainName]
+        Fn::GetAtt: [CloudFrontDistributionMovies, DomainName]
     handler: functions/indexMovie.handler
     iamRoleStatements:
       - Action:
@@ -32,14 +32,14 @@ functions:
           Fn::Join:
             - ''
             - - 'arn:aws:s3:::'
-              - Ref: MoviesBucket
+              - Ref: S3BucketMovies
               - /*
     memorySize: 128
     timeout: 60
 
   resizeImage:
     handler: functions/resizeImage.handler
-    role: ResizeImageRole
+    role: ResizeImageIamRoleEdgeLambdaExecution
     timeout: 5
 
 package:

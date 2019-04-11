@@ -1,5 +1,5 @@
 Resources:
-  MoviesBucket:
+  S3BucketMovies:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
@@ -13,18 +13,18 @@ Resources:
               - '*'
             MaxAge: 3600
 
-  MoviesBucketOriginAccessIdentity:
+  S3BucketMoviesOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig:
         Comment:
-          Ref: MoviesBucket
+          Ref: S3BucketMovies
 
-  MoviesBucketPolicy:
+  S3BucketMoviesPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket:
-        Ref: MoviesBucket
+        Ref: S3BucketMovies
       PolicyDocument:
         Statement:
           - Action:
@@ -33,12 +33,12 @@ Resources:
             Principal:
               CanonicalUser:
                 Fn::GetAtt:
-                  [MoviesBucketOriginAccessIdentity, S3CanonicalUserId]
+                  [S3BucketMoviesOriginAccessIdentity, S3CanonicalUserId]
             Resource:
               Fn::Join:
                 - ''
                 - - 'arn:aws:s3:::'
-                  - Ref: MoviesBucket
+                  - Ref: S3BucketMovies
                   - /*
           - Action:
               - s3:GetObject
@@ -46,10 +46,10 @@ Resources:
             Effect: Allow
             Principal:
               AWS:
-                Fn::GetAtt: [ResizeImageRole, Arn]
+                Fn::GetAtt: [ResizeImageIamRoleEdgeLambdaExecution, Arn]
             Resource:
               Fn::Join:
                 - ''
                 - - 'arn:aws:s3:::'
-                  - Ref: MoviesBucket
+                  - Ref: S3BucketMovies
                   - /*
